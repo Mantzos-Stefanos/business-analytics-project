@@ -1,0 +1,463 @@
+---
+title: "Marketing Campaign Analysis"
+author: "Στέφανος Μάντζος"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  - \usepackage{fontspec}
+  - \setmainfont{FreeSerif}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+<br>
+<br>
+<br>
+
+## **1.Περιγραφή του Dataset** 
+
+Το dataset που χρησιμοποιούμε στην παρούσα ανάλυση προέρχεται από μια βάση δεδομένων πελατών της εταιρείας marketing. Το dataset περιλαμβάνει δεδομένα για μια ομάδα πελατών και αφορά χαρακτηριστικά όπως το επίπεδο εκπαίδευσης, το εισόδημα, η ηλικία, η οικογενειακή κατάσταση, και το έτος γέννησης. Αυτή η βάση δεδομένων χρησιμοποιείται για ανάλυση δεδομένων σε σενάρια επιχειρηματικής ανάλυσης και marketing.
+
+<br>
+<br>
+
+
+### **2.Αιτιολόγηση της Επιλογής σε Σχέση με την Επιχειρηματική Αναλυτική**
+
+Η επιλογή αυτού του dataset βασίζεται στην ανάγκη ανάλυσης της σχέσης μεταξύ διαφόρων χαρακτηριστικών των πελατών και των στρατηγικών marketing. Αντιπροσωπεύει ένα δείγμα πραγματικών δεδομένων που μπορεί να βοηθήσει στην κατανόηση των προτιμήσεων και συμπεριφορών των πελατών, και στη βελτίωση των αποφάσεων marketing για την εταιρεία.
+<br>
+<br>
+
+### **3.Αναφορά σε Πιθανά Επιχειρηματικά Ερωτήματα που Θα Μπορούσαν να Απαντηθούν**
+
+Από το συγκεκριμένο dataset μπορούμε να εξετάσουμε ερωτήματα όπως:
+- Ποιες ομάδες πελατών έχουν το μεγαλύτερο εισόδημα;
+- Ποιες είναι οι συνηθέστερες εκπαιδευτικές κατηγορίες σε σχέση με την οικογενειακή κατάσταση;
+- Ποιες μεταβλητές σχετίζονται με την αγοραστική συμπεριφορά των πελατών (αν αυτή υπάρχει στο dataset);
+- Ποια είναι η κατανομή των πελατών ανά ηλικία και εισόδημα;
+
+
+<br>
+<br>
+\newpage
+
+## **4.Περιγραφή των Μεταβλητών**
+
+| **Μεταβλητή**             | **Τύπος**   | **Περιγραφή**                                                       |
+|--------------------------|-------------|---------------------------------------------------------------------|
+| `ID`                     | Numeric     | Μοναδικός αριθμός αναγνώρισης για κάθε πελάτη.                    |
+| `Year_Birth`              | Numeric     | Έτος γέννησης του πελάτη.                                           |
+| `Income`                  | Numeric     | Ετήσιο εισόδημα του πελάτη σε νομισματική μονάδα.                   |
+| `Dt_Customer`             | Date        | Ημερομηνία πρώτης εγγραφής του πελάτη στην εταιρεία.                |
+| `Education`               | Character   | Εκπαιδευτικό επίπεδο του πελάτη (π.χ., Basic, 2n Cycle, Graduation, Master, PhD). |
+| `Marital_Status`          | Character   | Οικογενειακή κατάσταση του πελάτη (π.χ., Single, Married, Together, Divorced, Widow). |
+| `NumChildrenAtHome`       | Numeric     | Αριθμός παιδιών που διαμένουν στο σπίτι του πελάτη.                 |
+| `NumWebPurchases`         | Numeric     | Αριθμός αγορών που πραγματοποιήθηκαν μέσω του διαδικτύου από τον πελάτη. |
+
+
+### **5.Μέτρα Κεντρικής Τάσης** 
+```{r}
+# Φόρτωση του dataset
+marketing_campaign <- read.csv("marketing_campaign.csv")
+# Εμφάνιση συνοπτικών στατιστικών
+summary(marketing_campaign)
+```
+```{r, echo=TRUE}
+# Φόρτωση του dataset
+marketing_campaign <- read.csv("marketing_campaign.csv")
+
+#Επιλογή αριθμητικών μεταβλητών
+numeric_vars <- c("Income", "Kidhome", "Year_Birth", "Recency")
+
+#Υπολογισμός συντελεστών συσχέτισης
+correlation_matrix <- cor(marketing_campaign[, numeric_vars], use = "complete.obs", method = "pearson")
+
+#Προβολή του πίνακα συσχετίσεων
+correlation_matrix
+```
+
+
+### Υπολογισμός Επικρατούσας Τιμής (Mode)
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+mode_income <- getmode(marketing_campaign$Income)
+
+### Εμφάνιση των αποτελεσμάτων
+mean_income
+median_income
+mode_income
+
+("Μέσος Όρος Εισοδήματος: ", mean_income, "\n")
+("Διάμεσος Εισοδήματος: ", median_income, "\n")
+("Επικρατούσα Τιμή Εισοδήματος: ", mode_income, "\n")
+("Τυπική Απόκλιση Εισοδήματος: ", std_dev_income, "\n")
+("Διακύμανση Εισοδήματος: ", variance_income, "\n")
+("Εύρος Εισοδήματος: ", range_income, "\n")
+
+<br>
+<br>
+
+
+\newpage
+## **6.Διαγράμματα** 
+<br>
+<br>
+
+### Scatterplot
+
+
+```{r}
+library(ggplot2)
+ggplot(marketing_campaign, aes(x= Year_Birth, y=Income)) +
+  geom_point() +
+  theme_minimal()
+```
+ *Ερμηνεία του διαγράμματος*
+
+Το scatter plot που δημιουργήσαμε απεικονίζει τη σχέση μεταξύ  *Year_Birth* και του  *Income* των πελατών.
+Κάθε σημείο στο διάγραμμα αντιπροσωπεύει έναν πελάτη.
+O οριζόντιος άξονας (x) δείχνει το έτος γέννησης.
+Ο κάθετος άξονας (y) δείχνει το εισόδημα του πελάτη.
+Το διάγραμμα μπορεί να μας βοηθήσει να εντοπίσουμε πιθανές τάσεις, όπως αν οι νεότεροι ή οι μεγαλύτεροι σε ηλικία πελάτες έχουν υψηλότερα εισοδήματα.
+
+<br>
+<br>
+
+
+
+### Boxplot
+
+```{r}
+ggplot(marketing_campaign, aes(x = Education, y = Income, fill = Education)) +
+  geom_boxplot() +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3") 
+
+```
+
+Ερμηνεία του Διαγράμματος
+Το boxplot που δημιουργήσαμε απεικονίζει τη σχέση μεταξύ  *Education* και του εισοδήματος *Income*.
+
+
+
+### Τι μας δείχνει το γράφημα;
+
+- Κάθε κουτί αντιπροσωπεύει την κατανομή των εισοδημάτων για μια κατηγορία εκπαίδευσης.  
+- Η μεσαία γραμμή μέσα σε κάθε κουτί είναι η διάμεσος του εισοδήματος για την αντίστοιχη κατηγορία.  
+- Μπορούμε να παρατηρήσουμε αν υπάρχει διαφορά στα εισοδήματα ανάλογα με το επίπεδο εκπαίδευσης.  
+- Αν μια κατηγορία έχει μεγαλύτερη διάμεσο από τις άλλες, οι άνθρωποι με αυτό το επίπεδο εκπαίδευσης έχουν γενικά υψηλότερα εισοδήματα. 
+
+<br>
+<br>
+
+
+
+
+### Histogram
+
+```{r}
+ggplot(marketing_campaign, aes(x = Year_Birth)) + 
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") + 
+  labs(title = "Histogram of Age",
+       x = "Age",
+       y = "Count") + 
+  theme_minimal()
+```
+
+### Εξήγηση του γραφήματος
+- Το διάγραμμα κατανομή των ετών γέννησης των πελατών. 
+- Ο άξονας Χ αναπαριστά το έτος γέννησης και ο άξονας Υ τη συχνότητα των πελατών για κάθε ηλικιακή ομάδα.
+- Βλέπουμε πως οι πελάτες συγκεντρώνονται γύρω από τα πιο πρόσφατα χρόνια γέννησης, 
+- υποδεικνύοντας ότι η πλειοψηφία των πελατών είναι πιο νέοι σε ηλικία.
+<br>
+<br>
+
+
+
+### Bar Chart
+
+```{r}
+library(ggplot2)
+
+# Δημιουργία Bar chart για την κατανομή του εκπαιδευτικού επιπέδου των πελατών με διαφορετικά χρώματα για κάθε κατηγορία
+ggplot(marketing_campaign, aes(x = Education, fill = Education)) + 
+  geom_bar(color = "black") + 
+  labs(title = "Bar Chart of Education Level",
+       x = "Education Level",
+       y = "Number of Customers") + 
+  theme_minimal() +
+  scale_fill_manual(values = c("Basic" = "lightblue", 
+                               "2n Cycle" = "lightgreen", 
+                               "Graduation" = "lightpink", 
+                               "Master" = "lightyellow", 
+                               "PhD" = "lightcoral"))
+
+```
+
+### Περιγραφή του διαγράμματος
+ Το συγκεκριμένο ραβδόγραμμα (bar chart) παρουσιάζει την κατανομή των πελατών 
+ σύμφωνα με το επίπεδο εκπαίδευσής τους.
+ 
+ Στον οριζόντιο άξονα (x-axis) εμφανίζονται τα επίπεδα εκπαίδευσης:
+- 2n Cycle
+ - Basic
+ - Graduation
+ - Master
+ - PhD
+ Στον κατακόρυφο άξονα (y-axis) παρουσιάζεται ο αριθμός των πελατών.
+
+#### Συμπέρασμα:
+Η πλειοψηφία των πελατών έχει ολοκληρώσει τουλάχιστον το επίπεδο Graduation,
+ενώ λιγότεροι πελάτες έχουν χαμηλότερο επίπεδο εκπαίδευσης.
+
+
+<br>
+<br>
+
+## **7.Γραμμική Παλινδόμηση** 
+
+### Μοντέλο 1 - Income
+
+```{r}
+model1 <- lm(Income ~ NumWebPurchases, data = marketing_campaign)
+summary(model1)
+
+```
+<br>
+<br>
+
+```{r}
+
+model1 <- lm(Income ~ NumWebPurchases, data = marketing_campaign)
+
+
+ggplot(marketing_campaign, aes(x = NumWebPurchases, y = Income)) +
+  geom_point(alpha = 0.5) +  
+  geom_abline(intercept = coef(model1)[1], slope = coef(model1)[2], color = "red", linewidth = 1.2) +  
+  labs(title = "Γραμμική Παλινδρόμηση: Εισόδημα ~ Αγορές μέσω Ιστοσελίδας",
+       x = "NumWebPurchases", y = "Income")
+
+```
+
+***Σχόλιο:***
+Το παραπάνω διάγραμμα παλινδρόμησης δείχνει τη σχέση μεταξύ του αριθμού αγορών μέσω ιστοσελίδας και του εισοδήματος. Παρατηρείται μια θετική γραμμική συσχέτιση, καθώς όσο αυξάνονται οι διαδικτυακές αγορές, τείνει να αυξάνεται και το εισόδημα. Η κόκκινη γραμμή αναπαριστά τη γραμμή παλινδρόμησης που έχει προκύψει από το μοντέλο.
+
+<br>
+<br>
+
+### Μοντέλο 2 - Προσθήκη Year_Birth
+
+```{r}
+model2 <- lm(Income ~ NumWebPurchases + Year_Birth, data = marketing_campaign)
+summary(model2)
+```
+***Σχόλιο:***
+Η προσθήκη της μεταβλητής Year_Birth οδηγεί σε μια μέτρια βελτίωση του μοντέλου, καθώς αυξάνει το R² και ενισχύει τη στατιστική σημαντικότητα του μοντέλου. Ωστόσο, η επίδραση της μεταβλητής Year_Birth δεν είναι τόσο ισχυρή όσο αυτή της μεταβλητής NumWebPurchases.
+
+<br>
+<br>
+
+### Μοντέλο 3 - Προσθήκη NumStorePurchases (Αγορές μέσω Καταστημάτων)
+
+```{r}
+model3 <- lm(Income ~ NumWebPurchases + Year_Birth + NumStorePurchases , data = marketing_campaign)
+summary(model3)
+```
+***Σχόλιο:***
+Η προσθήκη της μεταβλητής NumStorePurchases (Αριθμός Αγορών μέσω Καταστημάτων) έχει τον μεγαλύτερο συντελεστή (3431.96) και είναι επίσης σημαντικά συσχετισμένο με το Income, υποδεικνύοντας έτσι  ότι οι πελάτες που κάνουν περισσότερες αγορές μέσω καταστημάτων έχουν σημαντικά υψηλότερο εισόδημα.
+
+<br>
+<br>
+
+### Μοντέλο 4 - Recency (Πρόσφατες Αγορές)
+
+```{r}
+model4 <- lm(Income ~ NumWebPurchases + Year_Birth + NumStorePurchases + Recency , data = marketing_campaign)
+summary(model4)
+```
+
+***Σχόλιο:***
+Με την προσθήκη της μεταβλητής Recency στο μοντέλο, παρατηρούμε ότι το R-squared παραμένει αμετάβλητο στο 0.3048, ενώ το Adjusted R-squared μειώνεται ελαφρώς στο 0.3035. Αυτό υποδεικνύει ότι η μεταβλητή Recency δεν συνεισφέρει σημαντικά στην εξήγηση της μεταβλητότητας του εισοδήματος. Επιπλέον, η Recency έχει p-value 0.808, το οποίο είναι αρκετά υψηλό και υποδεικνύει ότι η συγκεκριμένη μεταβλητή δεν είναι στατιστικά σημαντική για την πρόβλεψη του εισοδήματος.
+
+<br>
+<br>
+
+```{r}
+library(knitr)  
+model_summary <- data.frame(
+  Μοντέλο = c(
+    "Εισόδημα ~ Αριθμός Αγορών μέσω Ιστοσελίδας",
+    "Εισόδημα ~ Αριθμός Αγορών μέσω Ιστοσελίδας + Έτος Γέννησης",
+    "Εισόδημα ~ Αριθμός Αγορών μέσω Ιστοσελίδας + Έτος Γέννησης + Αριθμός Αγορών σε Καταστήματα",
+    "Εισόδημα ~ Αριθμός Αγορών μέσω Ιστοσελίδας + Έτος Γέννησης + Αριθμός Αγορών σε Καταστήματα + Recency"
+  ),
+  R_squared = c(
+    summary(model1)$r.squared,    
+    summary(model2)$r.squared,   
+    summary(model3)$r.squared,    
+    summary(model4)$r.squared     
+  ),
+  SSE = c(
+    deviance(model1),    
+    deviance(model2),    
+    deviance(model3),   
+    deviance(model4)    
+  )
+)
+
+model_summary$R_squared <- round(model_summary$R_squared, 4)
+model_summary$SSE <- round(model_summary$SSE, 2)
+kable(model_summary, caption = "Σύγκριση Μοντέλων: R² και SSE")
+
+```
+
+## **8.Συμπέρασμα** 
+- Η προσθήκη της μεταβλητής **Year_Birth** βελτίωσε ελαφρώς το R² από 0.1504 σε 0.1612.
+- Η προσθήκη της **NumStorePurchases** αύξησε το R² σημαντικά σε 0.3048, υποδεικνύοντας τη μεγαλύτερη συσχέτιση με το εισόδημα.
+- Η προσθήκη της μεταβλητής **Recency** δεν είχε σημαντική επίδραση στο μοντέλο (R² παρέμεινε 0.3048).
+- Τα μοντέλα δείχνουν ότι οι αγορές μέσω ιστοσελίδας και καταστημάτων είναι οι πιο ισχυροί προγνωστικοί παράγοντες για το εισόδημα.
+
+<br>
+<br>
+
+
+## **🔹Λογιστική Παλινδρόμηση** 
+### Διαχωρισμός Συνόλου σε Train και Test
+
+```{r libraries, include=FALSE}
+library(caTools)
+library(ROCR)
+library(tidyverse)
+```
+
+Για τον διαχωρισμό του συνόλου δεδομένων χρησιμοποίησα την μεταβλητή Response. Το training set είναι το 65% της βάσης με seed 974
+
+```{r}
+library(caTools)
+set.seed(974)
+
+split <- sample.split(marketing_campaign$Response, SplitRatio = 0.65)
+
+training_set <- subset(marketing_campaign, split == TRUE)
+testing_set <- subset(marketing_campaign, split == FALSE)
+
+log_model <- glm(Response ~ NumWebPurchases + Year_Birth + Income,
+                 data = training_set,
+                 family = "binomial")
+```
+<br>
+***Οι καταχωρήσεις στο Train-set και Testing-set  είναι:***
+```{r}
+nrow(training_set)
+nrow(testing_set)
+```
+<br>
+<br>
+
+### **🔹Μοντέλο Λογιστικής Παλινδρόμησης** 
+
+```{r}
+reduced_model <- glm(Response ~ Income + Year_Birth + NumWebPurchases,
+                     data = training_set,
+                     family = "binomial")
+summary(reduced_model)
+
+
+```
+Οι μεταβλητές Income, Year_Birth και NumWebPurchases εμφανίζουν στατιστικά σημαντική συσχέτιση με την πιθανότητα συμμετοχής στην καμπάνια (Response), καθώς έχουν τιμές p < 0.05. Ειδικότερα, η μεταβλητή NumWebPurchases έχει πολύ χαμηλό p-value (p < 0.001), υποδεικνύοντας ισχυρή συσχέτιση. Οι μεταβλητές αυτές φαίνεται να επηρεάζουν σημαντικά την εξαρτημένη μεταβλητή και συνεισφέρουν σημαντικά στην πρόβλεψη της πιθανότητας απόκρισης.
+
+
+
+```{r}
+
+# Δημιουργία του διαγράμματος λογιστικής παλινδρόμησης
+ggplot(training_set, aes(x = Income, y = Response, color = NumWebPurchases)) +
+  geom_point() + # Σημεία
+  geom_smooth(method = "glm", method.args = list(family = "binomial")) + # Λογιστική παλινδρόμηση
+  labs(title = "Logistic Regression Plot for Income and NumWebPurchases",
+       x = "Independent Variable (Income)",
+       y = "Probability of Response") + 
+  theme_minimal()
+```
+***Περιγραφή του Διαγράμματος: ***
+Το διάγραμμα παρουσιάζει τη σχέση μεταξύ του εισοδήματος (Income) και της πιθανότητας απόκρισης (Response). Η γραμμή λογιστικής παλινδρόμησης δείχνει πώς η πιθανότητα απόκρισης μεταβάλλεται με το εισόδημα, ενώ το χρώμα των σημείων αντιπροσωπεύει τον αριθμό των αγορών μέσω διαδικτύου (NumWebPurchases).
+
+<br>
+<br>
+
+### **🔹Πρόβλεψη τιμών Test-set**
+
+```{r full-model, message=FALSE, warning=FALSE}
+# Δημιουργία μοντέλου λογιστικής παλινδρόμησης με όλες τις μεταβλητές
+full_model <- glm(Response ~ ., data = training_set, family = "binomial")
+```
+
+```{r}
+predictTest <- predict(reduced_model, newdata = testing_set, type = "response")
+
+# Επιλογή 10 τυχαίων δειγμάτων από τις προβλέψεις
+set.seed(123)
+sample_indices <- sample(1:length(predictTest), 10)
+predictTest[sample_indices]
+
+
+```
+***Σχόλιο:***
+Αυτό το αποτέλεσμα δείχνει τις προβλεπόμενες πιθανότητες από το μοντέλο λογιστικής παλινδρόμησης για 10 τυχαίες παρατηρήσεις του Test-set.
+
+🔹 Οι τιμές είναι μεταξύ 0 και 1 και εκφράζουν την πιθανότητα η παρατήρηση να ανήκει στην κατηγορία "1" της μεταβλητής Response (δηλαδή να ανταποκριθεί στην καμπάνια).
+
+🔹 Παραδείγματος χάριν:
+
+Η παρατήρηση με index 889 έχει πιθανότητα ~20.4% να ανταποκριθεί.
+
+Η παρατήρηση 1497 έχει πιθανότητα μόλις ~11.6%.
+<br>
+<br>
+
+
+#### **Καμπύλη ROC**
+
+```{r, echo=FALSE}
+set.seed(974)
+model <- glm(Response ~ Income + Year_Birth + NumWebPurchases, 
+             data = training_set, family = "binomial")
+predict_probs <- predict(model, newdata = testing_set, type = "response")
+
+
+na_free <- !is.na(predict_probs)
+predict_probs <- predict_probs[na_free]
+actual <- testing_set$Response[na_free]
+
+# Υπολογισμός ROC curve
+pred <- prediction(predict_probs, actual)
+perf <- performance(pred, "tpr", "fpr")
+
+# Σχεδίαση ROC curve
+plot(perf, colorize = TRUE, lwd = 2,
+     main = "ROC Curve - Logistic Regression",
+     xlab = "False Positive Rate (1 - Specificity)",
+     ylab = "True Positive Rate (Sensitivity)")
+abline(a = 0, b = 1, lty = 2, col = "gray")
+
+# Υπολογισμός AUC
+auc <- performance(pred, "auc")@y.values[[1]]
+text(0.6, 0.2, paste("AUC =", round(auc, 3)))
+```
+<br>
+***Σχόλιο:***
+Η ROC καμπύλη δείχνει ότι το μοντέλο έχει μέτρια διαχωριστική ικανότητα, καθώς απέχει ελαφρώς από τη διαγώνια γραμμή του τυχαίου μοντέλου. Η τιμή AUC = 0.672 υποδηλώνει ότι το μοντέλο εντοπίζει θετικές περιπτώσεις καλύτερα από την τύχη, αλλά με περιορισμένη ακρίβεια.
+
+
+
+
+
+
+
