@@ -14,7 +14,7 @@
 
 ## 📁 Περιεχόμενα
 
-- `business-analytics.Rmd`: ο πηγαίος κώδικας της εργασίας (R Markdown)
+- `Business Analytics individual project.Rmd`: ο πηγαίος κώδικας της εργασίας (R Markdown)
 
 ## 🧰 Χρησιμοποιήθηκαν:
 
